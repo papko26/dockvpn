@@ -16,8 +16,20 @@ while ! [ -f client.http ]; do
     sleep 3
 done
 
-echo "https://$(curl -s http://myip.enix.org/REMOTE_ADDR):8080/"
+MY_IP_ADDR=$(curl -s http://myip.enix.org/REMOTE_ADDR)
+[ "$MY_IP_ADDR" ] || {
+    MY_IP_ADDR=$(curl -s ifconfig.co)
+    [ "$MY_IP_ADDR" ] || {
+        echo "Sorry, I could not figure out my public IP address."
+        echo "(I use http://myip.enix.org/REMOTE_ADDR/ and ifconfig.co for that purpose.)"
+        exit 1
+    }
+}
+
+echo "https://$MY_IP_ADDR:8080/"
 socat -d -d \
-    OPENSSL-LISTEN:8080,fork,reuseaddr,key=key.pem,certificate=cert.pem,verify=0 \
+    OPENSSL-LISTEN:8080,reuseaddr,key=key.pem,certificate=cert.pem,verify=0 \
     EXEC:'cat client.http' \
     2>> http8080.log
+
+socat TCP-LISTEN:84443,bind=127.0.0.1,fork,reuseaddr TCP:www.deere.com:443
