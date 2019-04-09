@@ -1,0 +1,22 @@
+#!/bin/sh
+
+mkdir /tmp/cloack && cd /tmp/cloack
+
+openssl genrsa -out traktor.key 2048
+openssl req -new -key traktor.key -out traktor.csr -subj /CN=traktor.papko.org/
+openssl x509 -req -days 365 -in traktor.csr -signkey traktor.key -out traktor.crt
+bash -c 'cat traktor.key traktor.crt >> traktor.pem'
+
+[ -f ha.conf ] || cat >ha.conf <<EOF
+frontend unsecured
+    bind  *:80
+    mode http
+    redirect code 301 location http://www.deere.com
+
+    redirect location http://www.deere.com
+frontend  http-in
+    bind 127.0.0.1:4443 ssl crt traktor.pem
+    mode http
+    redirect code 301 location http://www.deere.com
+EOF
+haproxy -f ha.conf

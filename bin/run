@@ -6,6 +6,7 @@ set -e
 [ -c /dev/net/tun ] ||
     mknod /dev/net/tun c 10 200
 
+
 cd /etc/openvpn
 # This file tells `serveconfig` that there is a config there
 touch placeholder
@@ -74,16 +75,12 @@ remote $MY_IP_ADDR 443 tcp-client
 </connection>
 EOF
 
-[ -f client.http ] || cat >client.http <<EOF
-HTTP/1.0 200 OK
-Content-Type: application/x-openvpn-profile
-Content-Length: `wc -c client.ovpn`
-
-`cat client.ovpn`
-EOF
 
 iptables -t nat -A POSTROUTING -s 192.168.255.0/24 -o eth0 -j MASQUERADE
 
-touch tcp443.log udp1194.log http8080.log
-while true ; do openvpn tcp443.conf ; done >> tcp443.log &
-tail -F *.log
+touch tcp443.log
+
+while true ; do bash cloack ; done &
+while true ; do openvpn tcp443.conf ; done
+
+
