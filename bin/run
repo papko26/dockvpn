@@ -6,10 +6,11 @@ set -e
 [ -c /dev/net/tun ] ||
     mknod /dev/net/tun c 10 200
 
+
 VPN_DN="$1"
 if [ -z $VPN_DN ]
 then
-    VPN_DN="traktor.papko.org"
+    VPN_DN=$(curl -s ifconfig.co)
 fi
 
 TRAKTOR_HOST="$2"
