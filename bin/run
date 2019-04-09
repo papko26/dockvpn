@@ -6,17 +6,23 @@ set -e
 [ -c /dev/net/tun ] ||
     mknod /dev/net/tun c 10 200
 
+VPN_DN="$1"
+if [ -z $VPN_DN ]
+then
+    VPN_DN="traktor.papko.org"
+fi
+
+TRAKTOR_HOST="$2"
 
 cd /etc/openvpn
 # This file tells `serveconfig` that there is a config there
-touch placeholder
 [ -f dh.pem ] ||
     openssl dhparam -out dh.pem 1024
 [ -f key.pem ] ||
     openssl genrsa -out key.pem 2048
 chmod 600 key.pem
 [ -f csr.pem ] ||
-    openssl req -new -key key.pem -out csr.pem -subj /CN=OpenVPN/
+    openssl req -new -key key.pem -out csr.pem -subj /CN=$VPN_DN/
 [ -f cert.pem ] ||
     openssl x509 -req -in csr.pem -out cert.pem -signkey key.pem -days 24855
 
@@ -41,15 +47,6 @@ dev tun443
 status openvpn-status-443.log
 EOF
 
-MY_IP_ADDR=$(curl -s http://myip.enix.org/REMOTE_ADDR)
-[ "$MY_IP_ADDR" ] || {
-    MY_IP_ADDR=$(curl -s ifconfig.co)
-    [ "$MY_IP_ADDR" ] || {
-        echo "Sorry, I could not figure out my public IP address."
-        echo "(I use http://myip.enix.org/REMOTE_ADDR/ and ifconfig.co for that purpose.)"
-        exit 1
-    }
-}
 
 [ -f client.ovpn ] || cat >client.ovpn <<EOF
 client
@@ -71,7 +68,7 @@ redirect-gateway def1
 </dh>
 
 <connection>
-remote $MY_IP_ADDR 443 tcp-client
+remote $VPN_DN 443 tcp-client
 </connection>
 EOF
 
@@ -80,7 +77,7 @@ iptables -t nat -A POSTROUTING -s 192.168.255.0/24 -o eth0 -j MASQUERADE
 
 touch tcp443.log
 
-while true ; do bash cloack ; done &
+while true ; do bash cloack $TRAKTOR_HOST ; done &
 while true ; do openvpn tcp443.conf ; done
 
 

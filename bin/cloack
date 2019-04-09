@@ -1,5 +1,11 @@
 #!/bin/sh
 
+TRAKTOR_HOST="$1"
+if [ -z $TRAKTOR_HOST ]
+then
+    TRAKTOR_HOST="http://www.deere.com"
+fi
+
 mkdir /tmp/cloack && cd /tmp/cloack
 
 openssl genrsa -out traktor.key 2048
@@ -11,12 +17,11 @@ bash -c 'cat traktor.key traktor.crt >> traktor.pem'
 frontend unsecured
     bind  *:80
     mode http
-    redirect code 301 location http://www.deere.com
+    redirect code 301 location $TRAKTOR_HOST
 
-    redirect location http://www.deere.com
 frontend  http-in
     bind 127.0.0.1:4443 ssl crt traktor.pem
     mode http
-    redirect code 301 location http://www.deere.com
+    redirect code 301 location $TRAKTOR_HOST 
 EOF
 haproxy -f ha.conf
