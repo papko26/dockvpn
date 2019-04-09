@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+
+  traktor-vpn:
+    image: papko26/dockvpn:latest
+    privileged: true
+    ports:
+      - "443:443"
+      - "80:80"
+    environment:
+      CLOACK_REDIRECT_HOST: http://www.deere.com
+      SERVER_DNS_NAME: vpn.example.com
+    volumes:
+      - /etc/openvpn:/etc/openvpn
+    deploy:
+      restart_policy:
+        condition: always
