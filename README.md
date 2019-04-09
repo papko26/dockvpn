@@ -6,7 +6,8 @@ Quick instructions:
 
 ```bash
 #On server side
-root@vpn-server:/# docker run -d --privileged -v /etc/openvpn:/etc/openvpn -p 443:443/tcp -p80:80  papko26/dockvpn [ (optional) server.dns.name dummy-redirect.site ]
+root@vpn-server:/# docker run -d --privileged -v /etc/openvpn:/etc/openvpn -p 443:443/tcp -p80:80  papko26/dockvpn \
+ -e SERVER_DNS_NAME=vpn.example.com CLOACK_REDIRECT_HOST="http://www.deere.com"
 123exa456ololo
 root@vpn-server:/# curl -s ifconfig.co
 x.x.x.x
@@ -19,7 +20,8 @@ Regenerate certificates:
 ```bash
 #On server side
 root@vpn-server:/# rm -rf /etc/openvpn/*
-root@vpn-server:/# docker run -d --privileged -v /etc/openvpn:/etc/openvpn -p 443:443/tcp -p80:80  papko26/dockvpn [ (optional) server.dns.name dummy-redirect.site ]
+root@vpn-server:/# docker run -d --privileged -v /etc/openvpn:/etc/openvpn -p 443:443/tcp -p80:80  papko26/dockvpn \
+-e SERVER_DNS_NAME=vpn.example.com CLOACK_REDIRECT_HOST="http://www.deere.com"
 root@vpn-server:/# curl -s ifconfig.co
 x.x.x.x
 #On client side

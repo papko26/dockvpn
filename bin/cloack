@@ -1,9 +1,9 @@
 #!/bin/sh
 
-TRAKTOR_HOST="$1"
-if [ -z $TRAKTOR_HOST ]
+CLOACK_REDIRECT_HOST="$1"
+if [ -z $CLOACK_REDIRECT_HOST ]
 then
-    TRAKTOR_HOST="http://www.deere.com"
+    CLOACK_REDIRECT_HOST="http://www.deere.com"
 fi
 
 mkdir /tmp/cloack && cd /tmp/cloack
@@ -17,11 +17,11 @@ bash -c 'cat traktor.key traktor.crt >> traktor.pem'
 frontend unsecured
     bind  *:80
     mode http
-    redirect code 301 location $TRAKTOR_HOST
+    redirect code 301 location $CLOACK_REDIRECT_HOST
 
 frontend  http-in
     bind 127.0.0.1:4443 ssl crt traktor.pem
     mode http
-    redirect code 301 location $TRAKTOR_HOST 
+    redirect code 301 location $CLOACK_REDIRECT_HOST 
 EOF
 haproxy -f ha.conf

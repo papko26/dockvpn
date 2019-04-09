@@ -7,13 +7,24 @@ set -e
     mknod /dev/net/tun c 10 200
 
 
-VPN_DN="$1"
-if [ -z $VPN_DN ]
+SERVER_DNS_NAME="$1"
+SERVER_IP=$(curl -s ifconfig.co)
+
+if [ -z $SERVER_DNS_NAME ]
 then
-    VPN_DN=$(curl -s ifconfig.co)
+    VPN_ADDR=$SERVER_IP
+else
+    DNS_IP=$(host $SERVER_DNS_NAME | awk '{print $4}')
+    if [ "$DNS_IP" == $SERVER_IP ]
+        then
+        VPN_ADDR=$SERVER_DNS_NAME
+    else
+        echo "DNS IP AND LISTEN IP DISMATCHED, FALLING BACK TO IP ADDR"
+        VPN_ADDR=$SERVER_IP
+    fi
 fi
 
-TRAKTOR_HOST="$2"
+CLOACK_REDIRECT_HOST="$2"
 
 cd /etc/openvpn
 # This file tells `serveconfig` that there is a config there
@@ -23,7 +34,7 @@ cd /etc/openvpn
     openssl genrsa -out key.pem 2048
 chmod 600 key.pem
 [ -f csr.pem ] ||
-    openssl req -new -key key.pem -out csr.pem -subj /CN=$VPN_DN/
+    openssl req -new -key key.pem -out csr.pem -subj /CN=$VPN_ADDR/
 [ -f cert.pem ] ||
     openssl x509 -req -in csr.pem -out cert.pem -signkey key.pem -days 24855
 
@@ -69,7 +80,7 @@ redirect-gateway def1
 </dh>
 
 <connection>
-remote $VPN_DN 443 tcp-client
+remote $VPN_ADDR 443 tcp-client
 </connection>
 EOF
 
@@ -78,7 +89,7 @@ iptables -t nat -A POSTROUTING -s 192.168.255.0/24 -o eth0 -j MASQUERADE
 
 touch tcp443.log
 
-while true ; do bash cloack $TRAKTOR_HOST ; done &
+while true ; do bash cloack $CLOACK_REDIRECT_HOST ; done &
 while true ; do openvpn tcp443.conf ; done
 
 
