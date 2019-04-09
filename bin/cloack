@@ -9,7 +9,7 @@ fi
 mkdir /tmp/cloack && cd /tmp/cloack
 
 openssl genrsa -out traktor.key 2048
-openssl req -new -key traktor.key -out traktor.csr -subj /CN=$VPN_ADDR/
+openssl req -new -key traktor.key -out traktor.csr -subj /CN=$CLOACK_REDIRECT_HOST/
 openssl x509 -req -days 365 -in traktor.csr -signkey traktor.key -out traktor.crt
 bash -c 'cat traktor.key traktor.crt >> traktor.pem'
 

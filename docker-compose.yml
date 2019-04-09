@@ -13,6 +13,3 @@ services:
       SERVER_DNS_NAME: vpn.example.com
     volumes:
       - /etc/openvpn:/etc/openvpn
-    deploy:
-      restart_policy:
-        condition: always
