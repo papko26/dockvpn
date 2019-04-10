@@ -33,12 +33,13 @@ root@vpn-client:/$ openvpn --config client.ovpn
 
 ## How does it work?
 
-Logic is based on the `jpetazzo/dockvpn` image? so when it is started, it generates:
+Logic is based on the `jpetazzo/dockvpn` image, but with fixes of major security issues (check Keys and Security section) so when it is started, it generates:
 
 - Diffie-Hellman parameters,
-- a private key,
-- a self-certificate matching the private key,
-- two OpenVPN server configurations (for UDP and TCP),
+- (added) Self signed CA cert and key,
+- (added) Server cert and key,
+- (added) Client cert and key,
+- OpenVPN server configuration,
 - an OpenVPN client profile.
 - (added) haproxy self-signed certificates
 - (added) haproxy config
@@ -84,5 +85,5 @@ People have successfully used this VPN server with clients such as:
 
 
 ## Credits to 
-[jpetazzo/dockvpn](https://github.com/jpetazzo/dockvpn)
-[x2q/dockvpn](https://github.com/x2q/dockvpn)
+- [jpetazzo/dockvpn](https://github.com/jpetazzo/dockvpn)
+- [x2q/dockvpn](https://github.com/x2q/dockvpn)
