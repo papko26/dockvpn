@@ -100,7 +100,8 @@ People have successfully used this VPN server with clients such as:
 - Create scramblesuit script/binary on client side
 - Generate both, classic and scramblesuit ovpn configs on start
 - Generate scramblesuit pass on fly
-- May be letsencrypt support?..
+- REdirect non-scramblesuit trafic to dummy (donno how)
+- May be generate letsencrypt certs for dummy redirect endpoint?..
 
 
 ## Credits to 
