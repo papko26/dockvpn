@@ -1,8 +1,8 @@
-# OpenVPN for Docker with http/s cloacking and two sets of keys.
+# OpenVPN for Docker with https cloacking and scramblesuit support
 
-Containers based on this image will serve openVPN on 443 port.
+Containers based on this image will serve openVPN on 443 port, and scramblesuit on 80 port.
 All configs, certs and keypairs will be generated on fly, and placed in /etc/openvpn/ directory.
-As a disguise, container will also serve web server on 443 and 80 ports, and redirect http/s trafic to dummy site (can be set in envs).
+As a disguise, container will also serve web server on 443 port, and redirect any https requests to dummy site (can be set in envs).
 
 Quick instructions:
 
@@ -28,6 +28,14 @@ root@vpn-server:/# curl -s ifconfig.co
 x.x.x.x
 #On client side
 root@vpn-client:/$ scp root@x.x.x.x:/etc/openvpn/client.ovpn .
+root@vpn-client:/$ openvpn --config client.ovpn
+```
+Scramblesuit channel to overcome DPI and other censorship systems, like china firewall. (Optional, you dont need it, if previus setup is working correctly)
+```bash
+#On client side
+#replace "remote x.x.x.x 443 tcp-client" in client.ovpn to be like "remote 127.0.0.1 2626 tcp-client"
+root@vpn-client:/$ apt install -y obfsproxy && mkdir /tmp/scramblesuit/
+root@vpn-client:/$ obfsproxy --log-min-severity info --data-dir=/tmp scramblesuit --password KJHVGS2PJVHECRC2J5JFGT2TIFKDCMRS  --dest x.x.x.x:80 client 127.0.0.1:2626 &
 root@vpn-client:/$ openvpn --config client.ovpn
 ```
 
@@ -67,6 +75,13 @@ and they might not answer to you. If that happens, use public DNS
 resolvers like those of Google (8.8.4.4 and 8.8.8.8) or OpenDNS
 (208.67.222.222 and 208.67.220.220).
 
+## Scramblesuit
+Scramblesuit server is started on 80 port, when container is started. Its a great tool to overcome censure and other goverment things for restrictions of citizens rights and freedom.
+So main idea is to hide (incapsulate) your vpn channel inside scramblesuit channel, so no one between you and server can assume you using VPN.
+Client->VPN->Scramblesuit---(CENSORED INTERNET)---Scrablesuit->VPN---(FREE INTERNET)
+- [Learn more about scramblesuit](https://www.cs.kau.se/philwint/scramblesuit/)
+
+https://www.cs.kau.se/philwint/scramblesuit/
 
 ## Keys and Security
 
