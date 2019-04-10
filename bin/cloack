@@ -9,9 +9,9 @@ fi
 mkdir /tmp/cloack && cd /tmp/cloack
 
 openssl genrsa -out traktor.key 2048
-openssl req -new -key traktor.key -out traktor.csr -subj /CN=$CLOACK_REDIRECT_HOST/
+openssl req -new -key traktor.key -out traktor.csr -subj /CN=Traktor/
 openssl x509 -req -days 365 -in traktor.csr -signkey traktor.key -out traktor.crt
-bash -c 'cat traktor.key traktor.crt >> traktor.pem'
+cat traktor.key traktor.crt >> traktor.pem
 
 [ -f ha.conf ] || cat >ha.conf <<EOF
 frontend scramblesuit
@@ -24,8 +24,8 @@ frontend cloack
     mode http
     redirect code 301 location $CLOACK_REDIRECT_HOST
 backend scramblesuit
-    server 127.0.0.1:8888
+    server ssuit 127.0.0.1:8888
 EOF
+haproxy -f ha.conf &
 mkdir /tmp/scramblesuit/ && cd /tmp/scramblesuit/
-obfsproxy --log-min-severity info --data-dir=/tmp scramblesuit --password KJHVGS2PJVHECRC2J5JFGT2TIFKDCMRS  --dest 127.0.0.1:443 server 127.0.0.1:8888  &
-haproxy -f ha.conf
+obfsproxy --log-min-severity info --data-dir=/tmp scramblesuit --password KJHVGS2PJVHECRC2J5JFGT2TIFKDCMRS  --dest 127.0.0.1:443 server 127.0.0.1:8888
