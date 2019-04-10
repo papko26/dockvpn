@@ -27,24 +27,35 @@ fi
 CLOACK_REDIRECT_HOST="$2"
 
 cd /etc/openvpn
-# This file tells `serveconfig` that there is a config there
 [ -f dh.pem ] ||
     openssl dhparam -out dh.pem 1024
-[ -f key.pem ] ||
-    openssl genrsa -out key.pem 2048
-chmod 600 key.pem
-[ -f csr.pem ] ||
-    openssl req -new -key key.pem -out csr.pem -subj /CN=$VPN_ADDR/
-[ -f cert.pem ] ||
-    openssl x509 -req -in csr.pem -out cert.pem -signkey key.pem -days 24855
+[ -f ca_key.pem ] ||
+    openssl genrsa -out ca_key.pem 2048
+chmod 600 ca_key.pem
+[ -f ca_csr.pem ] ||
+    openssl req -new -key ca_key.pem -out ca_csr.pem -subj /CN=VPN_CA/
+[ -f ca.pem ] ||
+    openssl x509 -req -in ca_csr.pem -out ca.pem -signkey ca_key.pem -days 36525
+[ -f ca.srl ] ||
+    echo 01 > ca.srl
+[ -f server_key.pem ] ||
+    openssl genrsa -out server_key.pem 2048
+chmod 600 server_key.pem
+[ -f server_csr.pem ] ||
+    openssl req -new -key server_key.pem -out server_csr.pem -subj /CN=VPN_Server/
+[ -f server.pem ] ||
+openssl x509 -req -in server_csr.pem -out server.pem -CA ca.pem -CAkey ca_key.pem -days 36525
+
+
+
 
 [ -f tcp443.conf ] || cat >tcp443.conf <<EOF
 server 192.168.255.0 255.255.255.128
 verb 0
 duplicate-cn
-key key.pem
-ca cert.pem
-cert cert.pem
+key server_key.pem
+ca ca.pem
+cert server.pem
 dh dh.pem
 keepalive 10 60
 persist-key
@@ -59,6 +70,14 @@ dev tun443
 status openvpn-status-443.log
 EOF
 
+cd /etc/openvpn
+[ -f client_key.pem ] ||
+    openssl genrsa -out client_key.pem 2048
+    chmod 600 client_key.pem
+[ -f client_csr.pem ] ||
+    openssl req -new -key client_key.pem -out client_csr.pem -subj /CN=VPN_client/
+[ -f client_cert.pem ] ||
+    openssl x509 -req -in client_csr.pem -out client_cert.pem -CA ca.pem -CAkey ca_pk.pem -days 36525
 
 [ -f client.ovpn ] || cat >client.ovpn <<EOF
 client
@@ -67,13 +86,13 @@ dev tun
 redirect-gateway def1
 
 <key>
-`cat key.pem`
+`cat client_key.pem`
 </key>
 <cert>
-`cat cert.pem`
+`cat client_cert.pem`
 </cert>
 <ca>
-`cat cert.pem`
+`cat ca.pem`
 </ca>
 <dh>
 `cat dh.pem`

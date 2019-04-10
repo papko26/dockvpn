@@ -1,6 +1,8 @@
-# OpenVPN for Docker with cloacking
+# OpenVPN for Docker with http/s cloacking and two sets of keys.
 
-Containers based on this image will serve openVPN on 443 port. All configs will be generated on fly, and placed in mounted directory on host (/etc/openvpn/ by default). As a disguise, container will also serve web server on 443 and 80 ports, and redirect http/s trafic to dummy site (can be set in args).
+Containers based on this image will serve openVPN on 443 port.
+All configs, certs and keypairs will be generated on fly, and placed in /etc/openvpn/ directory.
+As a disguise, container will also serve web server on 443 and 80 ports, and redirect http/s trafic to dummy site (can be set in envs).
 
 Quick instructions:
 
@@ -65,25 +67,12 @@ resolvers like those of Google (8.8.4.4 and 8.8.8.8) or OpenDNS
 (208.67.222.222 and 208.67.220.220).
 
 
-## Security discussion
+## Keys and Security
 
-For simplicity, the client and the server use the same private key and
-certificate. This is certainly a terrible idea. If someone can get their
-hands on the configuration on one of your clients, they will be able to
-connect to your VPN, and you will have to generate new keys. Which is,
-by the way, extremely easy, since each time you `docker run` the OpenVPN
-image, a new key is created. If someone steals your configuration file
-(and key), they will also be able to impersonate the VPN server (if they
-can also somehow hijack your connection).
+When container is started for the first time, it generates self-signed CA, server key and client key pairs. For convenience ovpn client config (client.ovpn) is also compiled at container startup. Main idea, that openvpn config directory is mounted to the host server from container (-v /etc/openvpn:/etc/openvpn), so on all subsequent containers startups or restarts, it will use configs generated at first startup. So in case a client or server key is compromized, easiest (and most secure) way is to regenerate either server and client keypairs. You can achive it by removing all content from host /etc/openvpn (rm -rf /etc/openvpn/*) directory and starting/restarting container (check Quick instructions).
+By the way, you can suppress mount option (-v /etc/openvpn:/etc/openvpn), to achive certificate regeneration every containter startup. It is not recommended until you surly know, why do you need to use this configuration (first of all, you should find a way to gather client certificate every time when container restarts).
 
-It would probably be a good idea to generate two sets of keys.
-
-It would probably be even better to generate the server key when
-running the container for the first time (as it is done now), but
-generate a new client key each time the `serveconfig` command is
-called. The command could even take the client CN as argument, and
-another `revoke` command could be used to revoke previously issued
-keys.
+Config file should be distributed over a secure channel, since anyone who owns that file can use your VPN as legal user. My wery best practice - to use scp (check Quick instructions).
 
 ## Verified to work with ...
 
@@ -94,5 +83,6 @@ People have successfully used this VPN server with clients such as:
 - OpenVPN Client on Mikrotik hAP
 
 
-## All credits to 
-[dockvpn](https://github.com/jpetazzo/dockvpn)
+## Credits to 
+[jpetazzo/dockvpn](https://github.com/jpetazzo/dockvpn)
+[x2q/dockvpn](https://github.com/x2q/dockvpn)
