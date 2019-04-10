@@ -81,8 +81,6 @@ So main idea is to hide (incapsulate) your vpn channel inside scramblesuit chann
 - Client->VPN->Scramblesuit---(CENSORED INTERNET)---Scrablesuit->VPN---(FREE INTERNET)
 - [Learn more about scramblesuit](https://www.cs.kau.se/philwint/scramblesuit/)
 
-https://www.cs.kau.se/philwint/scramblesuit/
-
 ## Keys and Security
 
 When container is started for the first time, it generates self-signed CA, server key and client key pairs. For convenience ovpn client config (client.ovpn) is also compiled at container startup. Main idea, that openvpn config directory is mounted to the host server from container (-v /etc/openvpn:/etc/openvpn), so on all subsequent containers startups or restarts, it will use configs generated at first startup. So in case a client or server key is compromized, easiest (and most secure) way is to regenerate either server and client keypairs. You can achive it by removing all content from host /etc/openvpn (rm -rf /etc/openvpn/*) directory and starting/restarting container (check Quick instructions).
