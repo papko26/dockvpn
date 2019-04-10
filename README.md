@@ -98,6 +98,10 @@ People have successfully used this VPN server with clients such as:
 - OpenVPN on Iphone 6,
 - OpenVPN Client on Mikrotik hAP
 
+## TODO:
+- Generate scramblesuit pass on fly
+- May be letsencrypt support?..
+
 
 ## Credits to 
 - [jpetazzo/dockvpn](https://github.com/jpetazzo/dockvpn)
