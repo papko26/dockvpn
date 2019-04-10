@@ -77,7 +77,7 @@ cd /etc/openvpn
 [ -f client_csr.pem ] ||
     openssl req -new -key client_key.pem -out client_csr.pem -subj /CN=VPN_client/
 [ -f client_cert.pem ] ||
-    openssl x509 -req -in client_csr.pem -out client_cert.pem -CA ca.pem -CAkey ca_pk.pem -days 36525
+    openssl x509 -req -in client_csr.pem -out client_cert.pem -CA ca.pem -CAkey ca_key.pem -days 36525
 
 [ -f client.ovpn ] || cat >client.ovpn <<EOF
 client
