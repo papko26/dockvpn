@@ -97,6 +97,8 @@ People have successfully used this VPN server with clients such as:
 - OpenVPN Client on Mikrotik hAP
 
 ## TODO:
+- Create scramblesuit script/binary on client side
+- Generate both, classic and scramblesuit ovpn configs on start
 - Generate scramblesuit pass on fly
 - May be letsencrypt support?..
 
