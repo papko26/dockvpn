@@ -78,7 +78,7 @@ resolvers like those of Google (8.8.4.4 and 8.8.8.8) or OpenDNS
 ## Scramblesuit
 Scramblesuit server is started on 80 port, when container is started. Its a great tool to overcome censure and other goverment things for restrictions of citizens rights and freedom.
 So main idea is to hide (incapsulate) your vpn channel inside scramblesuit channel, so no one between you and server can assume you using VPN.
-Client->VPN->Scramblesuit---(CENSORED INTERNET)---Scrablesuit->VPN---(FREE INTERNET)
+- Client->VPN->Scramblesuit---(CENSORED INTERNET)---Scrablesuit->VPN---(FREE INTERNET)
 - [Learn more about scramblesuit](https://www.cs.kau.se/philwint/scramblesuit/)
 
 https://www.cs.kau.se/philwint/scramblesuit/
