@@ -152,7 +152,7 @@ backend scramblesuit
 EOF
 
 
-[ -f ssuit.pass ] || echo $RANDOM $RANDOM $RANDOM $RANDOM| base32 > ssuit.pass
+[ -f ssuit.pass ] || openssl rand  20 | base32 > ssuit.pass
 
 [ -f run_ssuit.sh ] || cat >run_ssuit.sh <<EOF
 mkdir /tmp/scramblesuit/ && cd /tmp/scramblesuit/
