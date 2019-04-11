@@ -66,7 +66,6 @@ proto tcp-server
 port 443
 port-share 127.0.0.1 4443
 dev tun443
-status openvpn-status-443.log
 EOF
 
 cd /etc/openvpn
@@ -127,11 +126,45 @@ remote 127.0.0.1 2626 tcp-client
 EOF
 
 
+CLOACK_REDIRECT_HOST="$1"
+if [ -z $CLOACK_REDIRECT_HOST ]
+then
+    CLOACK_REDIRECT_HOST="http://www.deere.com"
+fi
+
+openssl genrsa -out traktor.key 2048
+openssl req -new -key traktor.key -out traktor.csr -subj /CN=Traktor/
+openssl x509 -req -days 365 -in traktor.csr -signkey traktor.key -out traktor.crt
+cat traktor.key traktor.crt >> traktor.pem
+
+[ -f ha.conf ] || cat >ha.conf <<EOF
+frontend scramblesuit
+    bind  *:80
+    mode tcp
+    use_backend scramblesuit
+
+frontend cloack
+    bind 127.0.0.1:4443 ssl crt traktor.pem
+    mode http
+    redirect code 301 location $CLOACK_REDIRECT_HOST
+backend scramblesuit
+    server ssuit 127.0.0.1:8888
+EOF
+
+
+[ -f ssuit.pass ] || echo $RANDOM $RANDOM $RANDOM| base32 > ssuit.pass
+
+[ -f run_ssuit.sh ] || cat >run_ssuit.sh <<EOF
+mkdir /tmp/scramblesuit/ && cd /tmp/scramblesuit/
+obfsproxy --log-min-severity info --data-dir=/tmp scramblesuit --password `cat ssuit.pass`  --dest $VPN_ADDR:80 client 127.0.0.1:2626 &
+EOF
+
+mkdir /tmp/scramblesuit/
+
 iptables -t nat -A POSTROUTING -s 192.168.255.0/24 -o eth0 -j MASQUERADE
 
-touch tcp443.log
+while true ; obfsproxy --data-dir=/tmp scramblesuit --password $(cat ssuit.pass)  --dest 127.0.0.1:443 server 127.0.0.1:8888 ; done &
+while true ; haproxy -f ha.conf ; done &
+while true ; do openvpn tcp443.conf; sleep 10 ; done &
 
-bash cloack $CLOACK_REDIRECT_HOST &
-openvpn tcp443.conf
-
-
+sleep infinity

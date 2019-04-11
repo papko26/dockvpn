@@ -22,8 +22,8 @@ root@vpn-client:/$ openvpn --config client.ovpn
 ```bash
 #On client side
 root@vpn-client:/$ scp root@x.x.x.x:/etc/openvpn/scramblesuit-client.ovpn .
-root@vpn-client:/$ apt install -y obfsproxy && mkdir /tmp/scramblesuit/
-root@vpn-client:/$ obfsproxy --log-min-severity info --data-dir=/tmp scramblesuit --password KJHVGS2PJVHECRC2J5JFGT2TIFKDCMRS  --dest x.x.x.x:80 client 127.0.0.1:2626 &
+root@vpn-client:/$ scp root@x.x.x.x:/etc/openvpn/run_ssuit.sh .
+root@vpn-client:/$ bash run_ssuit.sh
 root@vpn-client:/$ openvpn --config scrablesuit-client.ovpn
 ```
 
@@ -119,8 +119,6 @@ People have successfully used this VPN server with clients such as:
 - OpenVPN Client on Mikrotik hAP
 
 ## TODO:
-- Create scramblesuit script/binary on client side
-- Generate scramblesuit pass on fly
 - REdirect non-scramblesuit trafic to dummy (donno how)
 - May be generate letsencrypt certs for dummy redirect endpoint?..
 
