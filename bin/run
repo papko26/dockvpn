@@ -6,10 +6,6 @@ set -e
 [ -c /dev/net/tun ] ||
     mknod /dev/net/tun c 10 200
 
-vnstat -u -i eth0
-systemctl start vnstat.service
-systemctl enable vnstat.service
-
 SERVER_DNS_NAME="$1"
 SERVER_IP=$(curl -s ifconfig.co)
 
