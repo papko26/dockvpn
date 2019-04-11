@@ -163,8 +163,8 @@ mkdir /tmp/scramblesuit/
 
 iptables -t nat -A POSTROUTING -s 192.168.255.0/24 -o eth0 -j MASQUERADE
 
-while true ; obfsproxy --data-dir=/tmp scramblesuit --password $(cat ssuit.pass)  --dest 127.0.0.1:443 server 127.0.0.1:8888 ; done &
-while true ; haproxy -f ha.conf ; done &
+while true ; do obfsproxy --data-dir=/tmp scramblesuit --password $(cat ssuit.pass)  --dest 127.0.0.1:443 server 127.0.0.1:8888 ; done &
+while true ; do haproxy -f ha.conf ; done &
 while true ; do openvpn tcp443.conf; sleep 10 ; done &
 
 sleep infinity
