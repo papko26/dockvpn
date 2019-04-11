@@ -4,7 +4,7 @@ Containers based on this image will serve openVPN on 443 port, and scramblesuit 
 All configs, certs and keypairs will be generated on fly, and placed in /etc/openvpn/ directory.
 As a disguise, container will also serve web server on 443 port, and redirect any https requests to dummy site (can be set in envs).
 
-Quick instructions:
+## Quick instructions:
 
 ```bash
 #On server side
@@ -18,7 +18,17 @@ root@vpn-client:/$ scp root@x.x.x.x:/etc/openvpn/client.ovpn .
 root@vpn-client:/$ openvpn --config client.ovpn
 ```
 
-Regenerate certificates:
+(Optional) Scramblesuit channel to overcome DPI and other censorship systems, like china firewall, you dont need it, if previus setup is working correctly
+```bash
+#On client side
+root@vpn-client:/$ scp root@x.x.x.x:/etc/openvpn/scramblesuit-client.ovpn .
+root@vpn-client:/$ apt install -y obfsproxy && mkdir /tmp/scramblesuit/
+root@vpn-client:/$ obfsproxy --log-min-severity info --data-dir=/tmp scramblesuit --password KJHVGS2PJVHECRC2J5JFGT2TIFKDCMRS  --dest x.x.x.x:80 client 127.0.0.1:2626 &
+root@vpn-client:/$ openvpn --config scrablesuit-client.ovpn
+```
+
+
+(In case if certificate is compromized, lost etc...) Regenerate certificates:
 ```bash
 #On server side
 root@vpn-server:/# rm -rf /etc/openvpn/*
@@ -30,13 +40,24 @@ x.x.x.x
 root@vpn-client:/$ scp root@x.x.x.x:/etc/openvpn/client.ovpn .
 root@vpn-client:/$ openvpn --config client.ovpn
 ```
-Scramblesuit channel to overcome DPI and other censorship systems, like china firewall. (Optional, you dont need it, if previus setup is working correctly)
+
+## Realible way: Control and run with systemd:
+Docker container may fail for some reason (e.g. on server reboot), so my choise to mitigate it is to control container via systemd:
 ```bash
-#On client side
-#replace "remote x.x.x.x 443 tcp-client" in client.ovpn to be like "remote 127.0.0.1 2626 tcp-client"
-root@vpn-client:/$ apt install -y obfsproxy && mkdir /tmp/scramblesuit/
-root@vpn-client:/$ obfsproxy --log-min-severity info --data-dir=/tmp scramblesuit --password KJHVGS2PJVHECRC2J5JFGT2TIFKDCMRS  --dest x.x.x.x:80 client 127.0.0.1:2626 &
-root@vpn-client:/$ openvpn --config client.ovpn
+git clone https://github.com/papko26/dockvpn.git
+cd dockvpn
+cp dvpn.service /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable dvpn
+systemctl start dvpn
+```
+To stop service:
+```bash
+systemctl stop dvpn
+```
+To restart service
+```bash
+systemctl restart dvpn
 ```
 
 ## How does it work?
@@ -98,7 +119,6 @@ People have successfully used this VPN server with clients such as:
 
 ## TODO:
 - Create scramblesuit script/binary on client side
-- Generate both, classic and scramblesuit ovpn configs on start
 - Generate scramblesuit pass on fly
 - REdirect non-scramblesuit trafic to dummy (donno how)
 - May be generate letsencrypt certs for dummy redirect endpoint?..
