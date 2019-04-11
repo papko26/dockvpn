@@ -70,10 +70,12 @@ Logic is based on the `jpetazzo/dockvpn` image, but with fixes of major security
 - (added) Client cert and key,
 - OpenVPN server configuration,
 - an OpenVPN client profile.
+- (added) an OpenVPN client profile for scrablesuit channel
 - (added) haproxy self-signed certificates
 - (added) haproxy config
 
-Then, it starts OpenVPN server process (on 443/tcp), and haproxy (on 80 and 443 for http/s trafic).
+
+Then, it starts OpenVPN server process (on 443/tcp, port-share mode), haproxy (on 443 for https trafic), obfsproxy on scramblesuit mode (on port 80)
 The configuration is located (either on docker host and in container, mounted) in /etc/openvpn, so configs could be retrived from here. If directory is empty, certificates will be regenerated.
 
 ## OpenVPN details
@@ -85,8 +87,7 @@ is rooted.
 The topology used is `net30`, because it works on the widest range of OS.
 `p2p`, for instance, does not work on Windows.
 
-The TCP server uses `192.168.255.0/25` and the UDP server uses
-`192.168.255.128/25`.
+The TCP server uses subnet `192.168.255.0/25`.
 
 The client profile specifies `redirect-gateway def1`, meaning that after
 establishing the VPN connection, all traffic will go through the VPN.
