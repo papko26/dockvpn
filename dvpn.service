@@ -6,11 +6,10 @@ Requires=docker.service
 [Service]
 TimeoutStartSec=0
 Restart=always
-Type=forking
 ExecStartPre=-/usr/bin/docker stop papko26vpn
 ExecStartPre=-/usr/bin/docker rm papko26vpn
 ExecStartPre=-/usr/bin/docker pull papko26/dockvpn
-ExecStart=/usr/bin/docker run --name papko26vpn -d --privileged -v /etc/openvpn:/etc/openvpn -p 443:443/tcp -p80:80 papko26/dockvpn -e SERVER_DNS_NAME=vpn.example.com CLOACK_REDIRECT_HOST="http://www.deere.com"
+ExecStart=/usr/bin/docker run --name papko26vpn --privileged -v /etc/openvpn:/etc/openvpn -p 443:443/tcp -p80:80 papko26/dockvpn -e SERVER_DNS_NAME=vpn.example.com CLOACK_REDIRECT_HOST="http://www.deere.com"
 
 [Install]
 WantedBy=multi-user.target
