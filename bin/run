@@ -13,7 +13,7 @@ if [ -z $SERVER_DNS_NAME ]
 then
     VPN_ADDR=$SERVER_IP
 else
-    DNS_IP=$(host $SERVER_DNS_NAME | awk '{print $4}')
+    DNS_IP=$(host "$SERVER_DNS_NAME" | awk '{print $4}')
     if [ "$DNS_IP" == $SERVER_IP ]
         then
         VPN_ADDR=$SERVER_DNS_NAME
