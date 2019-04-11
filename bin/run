@@ -6,6 +6,9 @@ set -e
 [ -c /dev/net/tun ] ||
     mknod /dev/net/tun c 10 200
 
+vnstat -u -i eth0
+systemctl start vnstat.service
+systemctl enable vnstat.service
 
 SERVER_DNS_NAME="$1"
 SERVER_IP=$(curl -s ifconfig.co)
@@ -28,7 +31,7 @@ CLOACK_REDIRECT_HOST="$2"
 
 cd /etc/openvpn
 [ -f dh.pem ] ||
-    openssl dhparam -out dh.pem 1024
+    openssl dhparam -out dh.pem 2048
 [ -f ca_key.pem ] ||
     openssl genrsa -out ca_key.pem 2048
 chmod 600 ca_key.pem
@@ -103,7 +106,7 @@ remote $VPN_ADDR 443 tcp-client
 </connection>
 EOF
 
-[ -f client.ovpn ] || cat >scramblesuit-client.ovpn <<EOF
+[ -f scramblesuit-client.ovpn  ] || cat >scramblesuit-client.ovpn <<EOF
 client
 nobind
 dev tun
@@ -132,7 +135,7 @@ iptables -t nat -A POSTROUTING -s 192.168.255.0/24 -o eth0 -j MASQUERADE
 
 touch tcp443.log
 
-while true ; do bash cloack $CLOACK_REDIRECT_HOST ; done &
-while true ; do openvpn tcp443.conf ; done
+bash cloack $CLOACK_REDIRECT_HOST &
+openvpn tcp443.conf
 
 
