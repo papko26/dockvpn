@@ -6,43 +6,7 @@ As a disguise, container will also serve web server on 443 port, and redirect an
 
 ## Quick instructions:
 
-```bash
-#On server side
-root@vpn-server:/# docker run -d --privileged -v /etc/openvpn:/etc/openvpn -p 443:443/tcp -p80:80  papko26/dockvpn \
- -e SERVER_DNS_NAME=vpn.example.com CLOACK_REDIRECT_HOST="http://www.deere.com"
-123exa456ololo
-root@vpn-server:/# curl -s ifconfig.co
-x.x.x.x
-#On client side
-root@vpn-client:/$ scp root@x.x.x.x:/etc/openvpn/client.ovpn .
-root@vpn-client:/$ openvpn --config client.ovpn
-```
-
-(Optional) Scramblesuit channel to overcome DPI and other censorship systems, like china firewall, you dont need it, if previus setup is working correctly
-```bash
-#On client side
-root@vpn-client:/$ scp root@x.x.x.x:/etc/openvpn/scramblesuit-client.ovpn .
-root@vpn-client:/$ scp root@x.x.x.x:/etc/openvpn/run_ssuit.sh .
-root@vpn-client:/$ bash run_ssuit.sh
-root@vpn-client:/$ openvpn --config scrablesuit-client.ovpn
-```
-
-
-(In case if certificate is compromized, lost etc...) Regenerate certificates:
-```bash
-#On server side
-root@vpn-server:/# rm -rf /etc/openvpn/*
-root@vpn-server:/# docker run -d --privileged -v /etc/openvpn:/etc/openvpn -p 443:443/tcp -p80:80  papko26/dockvpn \
--e SERVER_DNS_NAME=vpn.example.com CLOACK_REDIRECT_HOST="http://www.deere.com"
-root@vpn-server:/# curl -s ifconfig.co
-x.x.x.x
-#On client side
-root@vpn-client:/$ scp root@x.x.x.x:/etc/openvpn/client.ovpn .
-root@vpn-client:/$ openvpn --config client.ovpn
-```
-
-## Realible way: Control and run with systemd:
-Docker container may fail for some reason (e.g. on server reboot), so my choise to mitigate it is to control container via systemd:
+#### On server side
 ```bash
 git clone https://github.com/papko26/dockvpn.git
 cd dockvpn
@@ -50,14 +14,63 @@ cp dvpn.service /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable dvpn
 systemctl start dvpn
+curl ifconfig.co
+# x.x.x.x (copy ip address to bufer)
 ```
-To stop service:
+
+#### On client side
 ```bash
-systemctl stop dvpn
+scp root@x.x.x.x:/etc/openvpn/client.ovpn .
+sudo openvpn --config client.ovpn
 ```
-To restart service
+#### (Optional) via scramblesuit:
+#### On client side
 ```bash
-systemctl restart dvpn
+scp root@x.x.x.x:/etc/openvpn/scramblesuit-client.ovpn .
+scp root@x.x.x.x:/etc/openvpn/run_ssuit.sh .
+bash run_ssuit.sh
+openvpn --config scrablesuit-client.ovpn
+```
+
+<br />
+<br />
+
+## Manual method:
+#### On server side
+```bash
+docker run -d --privileged -v /etc/openvpn:/etc/openvpn -p 443:443/tcp -p80:80  papko26/dockvpn \
+-e SERVER_DNS_NAME=vpn.example.com CLOACK_REDIRECT_HOST="http://www.deere.com"
+curl ifconfig.co
+# x.x.x.x (copy ip address to bufer)
+```
+#### On client side
+```bash
+scp root@x.x.x.x:/etc/openvpn/client.ovpn .
+openvpn --config client.ovpn
+```
+
+### (Optional) Scramblesuit channel to overcome DPI and other censorship systems, like china firewall, you dont need it, if previus setup is working correctly
+#### On client side
+```bash
+scp root@x.x.x.x:/etc/openvpn/scramblesuit-client.ovpn .
+scp root@x.x.x.x:/etc/openvpn/run_ssuit.sh .
+bash run_ssuit.sh
+openvpn --config scrablesuit-client.ovpn
+```
+
+### (In case if certificate is compromized, lost etc...) Regenerate certificates:
+#### On server side
+```bash
+rm -rf /etc/openvpn/*
+docker run -d --privileged -v /etc/openvpn:/etc/openvpn -p 443:443/tcp -p80:80  papko26/dockvpn \
+-e SERVER_DNS_NAME=vpn.example.com CLOACK_REDIRECT_HOST="http://www.deere.com"
+curl -s ifconfig.co
+x.x.x.x
+```
+#### On client side
+```bash
+scp root@x.x.x.x:/etc/openvpn/client.ovpn .
+ openvpn --config client.ovpn
 ```
 
 ## How does it work?
@@ -68,6 +81,7 @@ Logic is based on the `jpetazzo/dockvpn` image, but with fixes of major security
 - (added) Self signed CA cert and key,
 - (added) Server cert and key,
 - (added) Client cert and key,
+- (added) Scramblesuit secret and user config,
 - OpenVPN server configuration,
 - an OpenVPN client profile.
 - (added) an OpenVPN client profile for scrablesuit channel
