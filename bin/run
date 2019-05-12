@@ -1,6 +1,10 @@
 #!/bin/sh
 set -e
 
+#I expect custumer to use ubuntu-docker-ufw droplet with default set of rules. So only way to mitigate two way ping is to fix ufw rules.
+sed -i '/ufw-before-input.*icmp/s/ACCEPT/DROP/g' /etc/ufw/before.rules && ufw enable
+
+
 [ -d /dev/net ] ||
     mkdir -p /dev/net
 [ -c /dev/net/tun ] ||
