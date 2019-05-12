@@ -62,6 +62,7 @@ persist-tun
 push "dhcp-option DNS 8.8.8.8"
 push "dhcp-option DNS 8.8.4.4"
 
+cipher AES-256-CBC
 proto tcp-server
 port 443
 port-share 127.0.0.1 4443
@@ -81,6 +82,7 @@ cd /etc/openvpn
 client
 nobind
 dev tun
+cipher AES-256-CBC
 redirect-gateway def1
 
 <key>
